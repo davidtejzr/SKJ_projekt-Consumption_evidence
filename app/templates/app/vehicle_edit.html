@@ -1,0 +1,84 @@
+{% extends 'app/vehicle.html' %}
+{% block vehicleTab %}
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="vehicle" role="tabpanel" aria-labelledby="nav-editVehicle-tab">
+            <form action="{% url 'vehicleEditPost' v_id=vehicle.id %}" method="post" style="max-width: 600px; margin: 0 auto; padding: 20px 0 60px 0;">{% csrf_token %}
+                <div class="form-group">
+                    <label for="brandInput">Značka</label>
+                    <select class="form-control" id="brandInput" onchange="getVehicleModels()" name="brand">
+                        {% for brand in brands %}
+                            {% if brand == vehicle.brand %}
+                                <option value="{{ brand }}" selected>{{ brand }}</option>
+                            {% else %}
+                                <option value="{{ brand }}">{{ brand }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="modelInput">Model</label>
+                    <select class="form-control" id="modelInput" name="model">
+                            <option id="chooseBrand" value="{{ vehicle.model }}" selected>{{ vehicle.model }}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="motorInput">Motorizace</label>
+                    <input type="text" class="form-control" id="motorInput" maxlength="80" name="motor" value="{{ vehicle.motor }}">
+                </div>
+                <div class="form-group">
+                    <label for="fuelInput">Palivo</label>
+                    <select class="form-control" id="fuelInput" name="fuel">
+                        <option value="Benzín"{% if vehicle.fuel == 'Benzín' %} selected {% endif %}>Benzín</option>
+                        <option value="Nafta"{% if vehicle.fuel == 'Nafta' %} selected {% endif %}>Nafta</option>
+                        <option value="LPG"{% if vehicle.fuel == 'LPG' %} selected {% endif %}>LPG</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fuelTankInput">Velikost nádrže</label>
+                    <div class="input-group">
+                        <input type="number" id="fuelTankInput" step="0.01" class="form-control" name="fuelTank" value="{{ vehicle.fuelTank|floatformat }}" aria-describedby="symbolTankLiters" required>
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="symbolTankLiters">L</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="kmInput">Stav tachometru</label>
+                    <div class="input-group">
+                        <input type="number" max="9999999" step="0.01" id="kmInput" class="form-control" name="km" value="{{ vehicle.kilometresCount|floatformat }}" aria-describedby="symbolKm" required>
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="symbolKm">km</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <a><button class="btn btn-danger" type="button" style="margin-top: 10px;" data-toggle="modal" data-target="#vehicleRemoveModal">Smazat vozidlo</button></a>
+                    <button class="btn btn-primary float-end" style="margin-top: 10px;" type="submit">Uložit změny</button>
+                </div>
+            </form>
+
+            <form action="{% url 'vehicleDetailEditUploadImg' v_id=vehicle.id %}" method="post" enctype="multipart/form-data" style="max-width: 600px; margin: 0 auto;">{% csrf_token %}
+                <label class="custom-file-label" for="imgInput">Obrázek vozidla</label>
+                <input type="file" class="custom-file-input" id="imgInput" name="vehicleImg">
+                <button type="submit" class="btn btn-secondary float-end">Změnit obrázek</button>
+            </form>
+
+        </div>
+    </div>
+
+    <!--Modal window for remove vehicle-->
+    <div class="modal fade" id="vehicleRemoveModal" tabindex="-1" role="dialog" aria-labelledby="vehicleRemoveModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Smazání vozidla</h5>
+                </div>
+                <div class="modal-body">Opravdu chcete smazat toto vozidlo?</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zrušit</button>
+                    <a href="{% url 'vehicleEditRemove' v_id=vehicle.id %}"><button type="button" class="btn btn-danger">Nevratně smazat</button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

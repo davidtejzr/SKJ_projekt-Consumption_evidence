@@ -1,0 +1,53 @@
+{% extends "app/layout.html" %}
+{% block content %}
+    {% load static %}
+
+    {% if messages %}
+        {% for msg in messages %}
+            {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                <div class="alert alert-success fade show" role="alert">{{ msg }}</div>
+            {% endif %}
+            {% if msg.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+                <div class="alert alert-warning fade show" role="alert">{{ msg }}</div>
+            {% endif %}
+            {% if msg.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                <div class="alert alert-danger fade show" role="alert">{{ msg }}</div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <a href="{% url 'home' %}"><button class="btn btn-secondary" style="margin: 10px;">Zpět</button></a>
+
+    <!--DETAIL VOZIDLA-->
+    <div class="container" style="max-width: 900px; margin: 0 auto; min-height: 400px;">
+        <img src="{% if vehicle.image %}{{ vehicle.image }}{% else %}{% static 'ikony/car.png' %}{% endif %}" alt="Vehicle" style="float: left; max-width: 400px;" class="img-fluid">
+        <div class="vehicleInfo">
+            <h2>{{ vehicle.brand }} {{ vehicle.model }}</h2>
+            <h3>{{ vehicle.motor }}</h3>
+            <h4>Palivo: {{ vehicle.fuel }}</h4>
+            {% if vehicle.longTermConsumption > 0 %}
+                <h4>Dlouhodobá spotřeba: {{ vehicle.longTermConsumption }} l/100km</h4>
+            {% endif %}
+            <h4>Stav tachometru: {{ vehicle.kilometresCount }} km</h4>
+            {% if vehicle.refuelCount > 0 %}
+                <h4>Evidováno tankování: {{ vehicle.refuelCount }}</h4>
+            {% endif %}
+        </div>
+    </div>
+    <div class="container" style="max-width: 900px; margin-bottom: 100px;">
+        <nav>
+            {% url 'vehicleDetailRecords' v_id=vehicle.id as activeRecordsUrl %}
+            {% url 'vehicleDetailConsumption' v_id=vehicle.id as activeConsumptionUrl %}
+            {% url 'vehicleDetailRefuel' v_id=vehicle.id as activeRefuelUrl %}
+            {% url 'vehicleDetailEdit' v_id=vehicle.id as activeEditUrl %}
+            {% url 'vehicleConsumptionCalc' v_id=vehicle.id as activeConsumptionUrlAfter %}
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a href="{{ activeRecordsUrl }}" class="nav-item nav-link {% if request.get_full_path == activeRecordsUrl %} active {% endif %}" role="tab" aria-controls="detail" aria-selected="false">Přehled</a>
+                <a href="{{ activeConsumptionUrl }}" class="nav-item nav-link {% if request.get_full_path == activeConsumptionUrl or request.get_full_path == activeConsumptionUrlAfter %} active {% endif %}" role="tab" aria-controls="consumption" aria-selected="true">Výpočet nákladů</a>
+                <a href="{{ activeRefuelUrl }}" class="nav-item nav-link {% if request.get_full_path == activeRefuelUrl %} active {% endif %}" role="tab" aria-controls="refuel" aria-selected="false">Nové tankování</a>
+                <a href="{{ activeEditUrl }}" class="nav-item nav-link {% if request.get_full_path == activeEditUrl %} active {% endif %}" role="tab" aria-controls="vehicle" aria-selected="false">Editace vozidla</a>
+            </div>
+        </nav>
+        {% block vehicleTab %}{% endblock %}
+    </div>
+{% endblock %}

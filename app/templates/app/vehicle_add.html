@@ -1,0 +1,54 @@
+{% extends "app/layout.html" %}
+{% block content %}
+    <a href="{% url 'home' %}"><button class="btn btn-secondary" style="margin: 10px;">Zpět</button></a>
+    <form action="{% url 'vehicleAddPost' %}" method="post" style="max-width: 600px; margin: 0 auto; padding: 20px 0 60px 0;">{% csrf_token %}
+        <div class="form-group">
+            <label for="brandInput">Značka</label>
+            <select class="form-control" id="brandInput" onchange="getVehicleModels()" name="brand">
+                <option selected disabled>Vyberte značku</option>
+                {% for brand in brands %}
+                    <option value="{{ brand }}">{{ brand }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="modelInput">Model</label>
+            <select class="form-control" id="modelInput" name="model">
+                <option id="chooseBrand" disabled selected>Vyberte značku</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="motorInput">Motorizace</label>
+            <input type="text" class="form-control" id="motorInput" maxlength="80" name="motor">
+        </div>
+        <div class="form-group">
+            <label for="fuelInput">Palivo</label>
+            <select class="form-control" id="fuelInput" name="fuel">
+                <option value="Benzín">Benzín</option>
+                <option value="Nafta">Nafta</option>
+                <option value="LPG">LPG</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="fuelTankInput">Velikost nádrže</label>
+            <div class="input-group">
+                <input type="number" id="fuelTankInput" class="form-control" name="fuelTank" aria-describedby="symbolTankLiters" required>
+                <div class="input-group-append">
+                    <span class="input-group-text" id="symbolTankLiters">L</span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="kmInput">Stav tachometru</label>
+            <div class="input-group">
+                <input type="number" max="9999999" id="kmInput" class="form-control" name="km" aria-describedby="symbolKm" required>
+                <div class="input-group-append">
+                    <span class="input-group-text" id="symbolKm">km</span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary float-right" style="margin-top: 10px;" type="submit">Přidat vozidlo</button>
+        </div>
+    </form>
+{% endblock %}

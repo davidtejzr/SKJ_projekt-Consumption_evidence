@@ -1,0 +1,10 @@
+{% extends "app/layout.html" %}
+{% block content %}
+    <div class="landing-custom">
+            <h1 style="text-align: center;">Vítejte v evidenci spotřeby pohonných hmot!</h1>
+            <div class="landing-button-custom">
+                <a href="{% url 'login' %}"><button type="button" class="btn btn-primary btn-lg btn-block">Přihlásit se</button></a>
+                <a href="{% url 'register' %}"><button type="button" class="btn btn-secondary btn-lg btn-block">Registrovat se</button></a>
+            </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "app/layout.html" %}
+{% block content %}
+    {% load static %}
+
+    {% if messages %}
+        {% for msg in messages %}
+            {% if msg.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                <div class="alert alert-success fade show" role="alert">{{ msg }}</div>
+            {% endif %}
+            {% if msg.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+                <div class="alert alert-warning fade show" role="alert">{{ msg }}</div>
+            {% endif %}
+            {% if msg.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                <div class="alert alert-danger fade show" role="alert">{{ msg }}</div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <a href="{% url 'vehicleAdd' %}"><button class="btn btn-primary" style="margin: 10px;">Nové vozidlo</button></a>
+    <div class="container vehicleCards">
+        <div class="row">
+            {% for vehicle in vehicles %}
+                <div class="col-md-3">
+                    <a href="{% url 'vehicleDetailRecords' v_id=vehicle.id %}"><div class="card vehicleCard">
+                        <img class="card-img-top" src="{% if vehicle.image %}{{ vehicle.image }}{% else %}{% static 'ikony/car.png' %}{% endif %}" alt="Vehicle">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ vehicle.brand }} {{  vehicle.model }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ vehicle.kilometresCount }} km</h6>
+                        </div>
+                    </div></a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

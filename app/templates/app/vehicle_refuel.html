@@ -1,0 +1,109 @@
+{% extends 'app/vehicle.html' %}
+{% block vehicleTab %}
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="refuel" role="tabpanel" aria-labelledby="nav-newTank-tab">
+            <form action="{% url 'vehicleAddTankPost' v_id=vehicle.id %}" method="post">{% csrf_token %}
+                <div class="tankStationSelectBox container" style="margin-top: 20px;">
+                    <div class="row">
+                        <div class="form-group col-sm">
+                            <label for="regionSelect">Výběr čerpací stanice</label>
+                            <select name="regionSelect" id="regionSelect" onchange="getTankStation()" class="form-control">
+                                <option selected disabled>Vyber kraj</option>
+                                <option value="Hlavni-mesto-Praha">Hlavní město Praha</option>
+                                <option value="Stredocesky-kraj">Středočeský kraj</option>
+                                <option value="Jihocesky-kraj">Jihočeský kraj</option>
+                                <option value="Plzensky-kraj">Plzeňský kraj</option>
+                                <option value="Karlovarsky-kraj">Karlovarský kraj</option>
+                                <option value="Ustecky-kraj">Ústecký kraj</option>
+                                <option value="Liberecky-kraj">Liberecký kraj</option>
+                                <option value="Kralovehradecky-kraj">Královéhradecký kraj</option>
+                                <option value="Pardubicky-kraj">Pardubický kraj</option>
+                                <option value="Olomoucky-kraj">Olomoucký kraj</option>
+                                <option value="Moravskoslezsky-kraj">Moravskoslezský kraj</option>
+                                <option value="Jihomoravsky-kraj">Jihomoravský kraj</option>
+                                <option value="Zlinsky-kraj">Zlínský kraj</option>
+                                <option value="Vysocina">Kraj Vysočina</option>
+                            </select>
+                            <select name="tankStationSelect" id="tankStationSelect" onchange="getTankStationDetails()" class="form-control">
+                                <option selected disabled>Vyber kraj</option>
+                            </select>
+                        </div>
+                        <div class="map container col-sm" id="map">
+                            <!--Map iframe-->
+                        </div>
+                    </div>
+                </div>
+                <div style="max-width: 600px; margin: 0 auto; padding: 20px 0 60px 0;">
+                    <div class="form-group">
+                        <label for="kmTankInput">Stav tachometru</label>
+                        <div class="input-group">
+                            <input type="number" max="9999999" min="{{ vehicle.kilometresCount }}" id="kmTankInput" class="form-control" name="km" placeholder="{{ vehicle.kilometresCount }}" aria-describedby="symbolTankKm" required>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="symbolTankKm">km</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fuelTypeInput">Typ paliva</label>
+                        <select class="form-control" id="fuelTypeInput" name="fuelType" onchange="getTankStation()">
+                            {% if vehicle.fuel == 'Benzín' %}
+                                <option value="Natural 95" selected>Natural 95</option>
+                                <option value="Natural Premium">Natural Premium</option>
+                                <option value="Natural 98">Natural 98</option>
+                                <option value="Natural 100">Natural 100</option>
+                            {% elif vehicle.fuel == 'Nafta' %}
+                                <option value="Nafta" selected>Nafta</option>
+                                <option value="Nafta Premium">Nafta Premium</option>
+                            {% elif vehicle.fuel == 'LPG' %}
+                                <option value="LPG" selected>LPG</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="litersTankInput">Počet litrů</label>
+                        <div class="input-group">
+                            <input type="number" id="litersTankInput" min="0" step="0.01" class="form-control" name="liters" oninput="priceUpdate()" aria-describedby="symbolTankLiter" required>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="symbolTankLiter">L</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="pricePerLiterTankInput">Cena za litr</label>
+                        <div class="input-group">
+                            <input type="number" id="pricePerLiterTankInput" min="0" step="0.01" class="form-control" oninput="priceUpdate()" name="pricePerLiter" aria-describedby="symbolTankKc" required>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="symbolTankKc">,- Kč</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="priceTankInput">Celková cena</label>
+                        <div class="input-group">
+                            <input type="number" id="priceTankInput" min="0" step="0.01" class="form-control" name="price" aria-describedby="symbolTankAllKc" required>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="symbolTankAllKc">,- Kč</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="fullTankInput">Plná nádrž</label>
+                        <input class="form-check-input" type="radio" id="fullTankInput" name="radioTank" value="True" checked>
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="customTankInput">Neúplné tankování, nastavte prosím stav nádrže před tankováním</label>
+                        <input class="form-check-input" type="radio" id="customTankInput" name="radioTank" value="False">
+                        <input id="customTankInput" name="customTankValue" class="form-range" type="range" value="0" min="0" max="{{ vehicle.fuelTank|floatformat }}" oninput="this.nextElementSibling.value = this.value"><output>0</output> l
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="True" id="missingRecordInput" name="missingRecord">
+                        <label class="form-check-label" for="missingRecordInput">Chybějící předchozí tankování</label>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary float-end" style="margin-top: 10px;" type="submit">Vložit záznam</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
